@@ -18,6 +18,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  balance: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

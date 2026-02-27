@@ -16,13 +16,8 @@ export class TransactionsService {
   ) {}
 
   async getBalance(userId: string): Promise<number> {
-    const transactions = await this.transactionRepository.find({
-      where: { user: { id: userId } },
-    });
-
-    return transactions.reduce((acc, curr) => {
-      return curr.type === 'income' ? acc + curr.amount : acc - curr.amount;
-    }, 0);
+    const user = await this.userRepository.findOneBy({ id: userId });
+    return user.balance;
   }
 
   async getTransactions(userId: string): Promise<Transaction[]> {
@@ -41,20 +36,36 @@ export class TransactionsService {
       user,
     });
 
+    if (transactionData.type === 'income') {
+      user.balance = Number(user.balance) + transactionData.amount;
+    } else {
+      user.balance = Number(user.balance) - transactionData.amount;
+    }
+
+    await this.userRepository.save(user);
+
     return await this.transactionRepository.save(newTransaction);
   }
   async deleteTransaction(userId: string, transactionId: string) {
-    const deleteResult = await this.transactionRepository.delete({
-      id: transactionId,
-      user: { id: userId },
+    const transaction = await this.transactionRepository.findOne({
+      where: { id: transactionId, user: { id: userId } },
     });
 
-    if (deleteResult.affected === 0) {
-      throw new NotFoundException(
-        `Transaction with ID ${transactionId} not found for this user`,
-      );
-    }
+    if (!transaction) throw new NotFoundException('Transaction not found');
 
-    return;
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    const currentBalance = Number(user.balance);
+    const transactionAmount = Number(transaction.amount);
+
+    const adjustment =
+      transaction.type === 'income' ? -transactionAmount : transactionAmount;
+
+    user.balance = currentBalance + adjustment;
+
+    await this.userRepository.save(user);
+    await this.transactionRepository.remove(transaction);
+
+    return { message: 'Transaction deleted' };
   }
 }
