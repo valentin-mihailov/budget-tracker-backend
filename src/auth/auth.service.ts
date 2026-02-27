@@ -8,11 +8,13 @@ import { LoginDto, RegisterDto } from 'src/dto/auth.dto';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async loginUser(loginDto: LoginDto) {
@@ -33,8 +35,13 @@ export class AuthService {
       throw new UnauthorizedException(`Passwords don't match!`);
     }
 
+    const payload = { sub: existingUser.id, email: existingUser.email };
+
     delete existingUser.password;
-    return existingUser;
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: existingUser,
+    };
   }
 
   async registerUser(registerDto: RegisterDto) {

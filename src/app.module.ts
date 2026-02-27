@@ -3,8 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entity/user.entity';
 import { ConfigModule } from '@nestjs/config';
+import { Transaction } from './entity/transaction.entity';
+import { User } from './entity/user.entity';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -17,10 +19,10 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User],
-      synchronize: false,
-      logging: true,
+      entities: [User, Transaction],
+      synchronize: true,
     }),
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
