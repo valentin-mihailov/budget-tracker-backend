@@ -21,6 +21,9 @@ export class User {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   balance: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  budget: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

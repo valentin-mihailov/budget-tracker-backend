@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionDto } from 'src/dto/transaction.dto';
@@ -21,9 +22,22 @@ export class TransactionsController {
     return this.transactionsService.getBalance(userId);
   }
 
+  @Get(`budget`)
+  async getBudget(@Param(`userId`) userId: string) {
+    return this.transactionsService.getBudget(userId);
+  }
+
   @Get(`transactions`)
   async getTransactions(@Param(`userId`) userId: string) {
     return this.transactionsService.getTransactions(userId);
+  }
+
+  @Put('budget')
+  async setBudget(
+    @Param('userId') userId: string,
+    @Body() body: { amount: number },
+  ) {
+    return this.transactionsService.setBudget(userId, body.amount);
   }
 
   @Post(`transactions`)

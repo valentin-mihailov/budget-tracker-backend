@@ -20,6 +20,11 @@ export class TransactionsService {
     return user.balance;
   }
 
+  async getBudget(userId: string): Promise<number> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    return user.budget;
+  }
+
   async getTransactions(userId: string): Promise<Transaction[]> {
     const transactions = await this.transactionRepository.find({
       where: { user: { id: userId } },
@@ -66,6 +71,16 @@ export class TransactionsService {
     await this.userRepository.save(user);
     await this.transactionRepository.remove(transaction);
 
-    return { message: 'Transaction deleted' };
+    return;
+  }
+
+  async setBudget(userId: string, newBudget: number) {
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    user.budget = newBudget;
+
+    await this.userRepository.save(user);
+
+    return;
   }
 }
