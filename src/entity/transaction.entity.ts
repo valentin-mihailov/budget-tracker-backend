@@ -13,13 +13,13 @@ export class Transaction {
   id: string;
 
   @Column()
-  description: string;
+  type: 'income' | 'expense';
+
+  @Column()
+  category: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
   amount: number;
-
-  @Column()
-  type: 'income' | 'expense';
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
