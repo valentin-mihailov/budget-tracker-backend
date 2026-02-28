@@ -10,14 +10,13 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Usually, this should only be in AppModule!
+    ConfigModule.forRoot(),
     TypeOrmModule.forFeature([User]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        // FIX: Use the string key name, not the process.env value
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '1h' },
       }),

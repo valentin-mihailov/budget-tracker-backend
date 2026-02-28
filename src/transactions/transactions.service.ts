@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionDto } from 'src/dto/transaction.dto';
+import { DeletedTransaction } from 'src/entity/deleted-transaction.entity';
 import { Transaction } from 'src/entity/transaction.entity';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TransactionsService {
@@ -13,6 +15,9 @@ export class TransactionsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(DeletedTransaction)
+    private readonly deletedTransactionRepository: Repository<DeletedTransaction>,
   ) {}
 
   async getBalance(userId: string): Promise<number> {
@@ -69,6 +74,19 @@ export class TransactionsService {
     user.balance = currentBalance + adjustment;
 
     await this.userRepository.save(user);
+
+    const transactionCopy = {
+      id: crypto.randomUUID(),
+      originalId: transaction.id,
+      type: transaction.type,
+      category: transaction.category,
+      amount: transaction.amount,
+      createdAt: transaction.createdAt,
+      user,
+    };
+
+    await this.deletedTransactionRepository.save(transactionCopy);
+
     await this.transactionRepository.remove(transaction);
 
     return;

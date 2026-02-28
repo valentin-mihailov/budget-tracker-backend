@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Transaction } from './entity/transaction.entity';
 import { User } from './entity/user.entity';
 import { TransactionsModule } from './transactions/transactions.module';
+import { DeletedTransaction } from './entity/deleted-transaction.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Transaction],
+      entities: [User, Transaction, DeletedTransaction],
       synchronize: true,
     }),
     TransactionsModule,
